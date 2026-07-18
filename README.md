@@ -199,6 +199,52 @@ inspection. The videos above provide the public demonstration during peer
 review; the Viewer source and complete playback tools are included in the
 Zenodo source package.
 
+### Viewer Behavior
+
+The Animation Viewer is a trace-driven playback interface. It does not call an
+LLM and does not rerun the simulator. Instead, it loads compact animation
+bundles generated from completed simulation outputs and presents agent
+movement, route state, events, messages, and selected-agent details on the
+project map.
+
+### Included Playback Bundles
+
+The Zenodo source package includes four prepared bundles under
+`viewer/animation_data/`:
+
+| File | Scenario |
+|---|---|
+| `routine.json` | Seven-day Routine Baseline |
+| `branch_a.json` | Branch A: Route Disruption |
+| `branch_b.json` | Branch B: Caregiver Handoff |
+| `branch_c.json` | Branch C: Public Claim Confirmation |
+
+These files retain only the structured state, movement, route, message, event,
+and chapter data required for playback. They are compact derived artifacts and
+are not substitutes for the complete raw simulation outputs distributed in the
+Zenodo data package.
+
+### Regenerating Viewer Bundles
+
+Users with compatible KGC-ABM run outputs can regenerate animation bundles with
+`viewer/tools/build_animation_bundle.py`. Run the following command from the
+extracted source package to inspect the required arguments:
+
+```powershell
+python viewer/tools/build_animation_bundle.py --help
+```
+
+The generated bundle can then be registered with the Viewer and served through
+`viewer/tools/serve_viewer.py`.
+
+### Viewer Data License
+
+The Viewer software is licensed under Apache-2.0. The four derived animation
+data bundles are licensed separately under the
+[Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).
+The corresponding `LICENSE_DATA.txt` is included with the animation bundles in
+the Zenodo source package.
+
 The complete source package also includes the following technical references:
 
 - `docs/ARCHITECTURE.md`
