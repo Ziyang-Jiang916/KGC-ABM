@@ -92,6 +92,76 @@ visual material, and licensing information. The complete implementation and
 the files listed above are available in the private Zenodo review package
 through the link in the **Cover Letter**.
 
+## Installing the Full Review Package
+
+The Public GitHub repository is a demonstration site rather than the source
+distribution during peer review. To install and run the project, download the
+complete source archive from the private Zenodo link provided in the **Cover
+Letter**, extract it, and run the following commands from the extracted
+`KGC-ABM-source-code/` directory.
+
+KGC-ABM requires Python 3.10 or newer.
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install -e ".[test]"
+```
+
+On Linux or macOS, activate the environment with:
+
+```bash
+source .venv/bin/activate
+```
+
+Confirm the installation with:
+
+```powershell
+python -m kgc_abm.cli --help
+```
+
+For OpenAI-compatible model integration, copy `.env.example` to `.env` and
+provide the endpoint, model, and API key through the documented environment
+variables. Never commit a populated `.env` file.
+
+## Quick Start
+
+Run the lightweight smoke scenario without an external API key:
+
+```powershell
+python -m kgc_abm.cli run --config configs/smoke_test.yaml --out outputs/smoke_run
+```
+
+## Run the Baseline and Event Branches
+
+The following commands use PowerShell. First run the seven-day routine
+baseline:
+
+```powershell
+python -m kgc_abm.cli run `
+  --config configs/formal_7day_llm_clean_schedule_v2_highbudget.yaml `
+  --out outputs/routine_baseline `
+  --prompt-logging `
+  --audit-bundle
+```
+
+Then create Branch A, B, and C from the Day 7 checkpoint:
+
+```powershell
+python -m kgc_abm.cli run-day8-branches `
+  --base-checkpoint outputs/routine_baseline/checkpoints/checkpoint_day_07_end.json `
+  --config configs/formal_7day_llm_clean_schedule_v2_highbudget.yaml `
+  --out outputs/event_branches `
+  --branches A_route_disruption B_caregiver_unavailable C_public_claim_confirmation `
+  --prompt-logging `
+  --audit-bundle
+```
+
+Formal model-backed runs can take substantial time and may incur provider
+charges. Natural-language responses can vary across providers and model
+versions even when the scenario and output schema remain unchanged.
+
 ## Simulation and Inspection
 
 The full implementation supports a routine baseline and event branches from
@@ -104,10 +174,51 @@ serializable checkpoints. A completed run can provide:
 - aggregated diagnostics and graph exports;
 - compact playback bundles for the Animation Viewer.
 
-The Viewer presents four prepared scenarios with manual playback, speed control,
-timeline scrubbing, route overlays, themes, and agent inspection. The videos
-above provide the public demonstration during peer review; the Viewer source
-and complete playback tools are included in the Zenodo source package.
+Each run writes to the selected output directory. Typical artifacts include
+`run_summary.json`, `checkpoints/`, `traces/`, `analysis/`, and `exports/`.
+Additional runtime records and materialized graph views are also available for
+inspection in the complete source package.
+
+The full output tree may also contain:
+
+- `decision_packets/`: structured runtime records linking graph evidence,
+  agent state, and processing results;
+- `activated_subgraphs/`: graph views materialized during agent processing;
+- `audit_bundle/`: an optional compact bundle of selected summaries and traces.
+
+The Viewer can be started from the extracted source package with:
+
+```powershell
+python viewer/tools/serve_viewer.py --port 8765
+```
+
+Open <http://127.0.0.1:8765/viewer/> and select the Routine Baseline or any of
+the three event branches. The Viewer provides manual playback, speed control,
+timeline scrubbing, route overlays, themes, cinematic mode, and agent
+inspection. The videos above provide the public demonstration during peer
+review; the Viewer source and complete playback tools are included in the
+Zenodo source package.
+
+The complete source package also includes the following technical references:
+
+- `docs/ARCHITECTURE.md`
+- `docs/GRAPH_SCHEMA.md`
+- `docs/RUN_OUTPUTS.md`
+- `docs/NEO4J_EXPORT.md`
+
+## Verification
+
+From the extracted source package, run the Python regression suite and the
+Viewer playback checks with:
+
+```powershell
+pytest -q
+node viewer/tests/playback_core.test.mjs
+```
+
+The complete source package includes the tests and the files required for
+these checks. Generated `outputs/`, logs, caches, and populated `.env` files
+should remain outside the repository.
 
 ## Full Release Access
 
